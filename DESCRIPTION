@@ -1,0 +1,14 @@
+Package: chipcompare
+Title: Compare multiple ChIP-Seq experiments.
+Version: 0.1
+Authors@R: person("Charles", "Joly Beauparlant", role=c("aut", "cre"),
+    email="Charles.Joly-Beauparlant@crchul.ulaval.ca")
+Description: By default, chipcompare will calculate the overlap between
+    multiple Chip-Seq experiments and represent it as a heatmap.
+Depends: R (>= 3.1.0)
+License: Artistic-2.0
+LazyData: true
+BiocViews: ChIP-Seq, MultipleComparison, Genetics
+Imports: R6 (>= 1.0.1.9001), GenomicRanges
+Suggests: knitr, testthat
+VignetteBuilder: knitr

@@ -4,8 +4,14 @@ chip_compare <- R6::R6Class("chip_compare",
   public = list(
     ## initialize
     initialize = function(grl1, grl2=NULL) {
+      # Check parameters
       stopifnot(class(grl1) == "GRangesList")
-      stopifnot(is.null(grl2) | class(grl2) == "GRangesList")
+      stopifnot(length(grl1) > 0)
+      if (!is.null(grl2)) {
+        stopifnot(class(grl2) == "GRangesList")
+        stopifnot(length(grl2) > 0)
+      }
+      # Initialize
       private$grl[[1]] <- grl1
       private$grl[[2]] <- grl2
       private$score_matrix <- private$produce_matrix()
@@ -57,7 +63,7 @@ chip_compare <- R6::R6Class("chip_compare",
       result <- matrix(nrow = q_length, ncol = s_length)
       for (i in 1:q_length) {
         for (j in 1:s_length) {
-          result[i,j] <- private$compute_score(query[i], subject[j])
+          result[i,j] <- private$compute_score(query[[i]], subject[[j]])
         }
       }
       rownames(result) <- names(query)

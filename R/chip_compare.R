@@ -15,6 +15,10 @@ chip_compare <- R6::R6Class("chip_compare",
       stopifnot(class(FUN(private$grl[[1]], private$grl[[1]])) == "numeric")
       private$compute_score <- FUN
     },
+    ## get_matrix
+    get_matrix = function() {
+      private$score_matrix
+    },
     ## print
     print = function(...) {
       message <- paste0("chip_compare Object of length: ",
@@ -61,6 +65,9 @@ chip_compare <- R6::R6Class("chip_compare",
           result[i,j] <- private$compute_score(query[i], subject[j])
         }
       }
+      rownames(result) <- names(query)
+      colnames(result) <- names(subject)
+      result
     }
   )
 )

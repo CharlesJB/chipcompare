@@ -3,11 +3,11 @@
 chip_compare <- R6::R6Class("chip_compare",
   public = list(
     ## initialize
-    initialize = function(grlist1, grlist2=NULL) {
-      stopifnot(class(grlist1) == "GRangesList")
-      stopifnot(is.null(grlist2) | class(grlist2) == "GRangesList")
-      private$grl[[1]] <- grlist1
-      private$grl[[2]] <- grlist2
+    initialize = function(grl1, grl2=NULL) {
+      stopifnot(class(grl1) == "GRangesList")
+      stopifnot(is.null(grl2) | class(grl2) == "GRangesList")
+      private$grl[[1]] <- grl1
+      private$grl[[2]] <- grl2
       private$score_matrix <- private$produce_matrix()
     },
     ## set_compute_score_FUN

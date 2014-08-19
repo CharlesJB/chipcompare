@@ -10,11 +10,6 @@ chip_compare <- R6::R6Class("chip_compare",
       private$grl[[2]] <- grl2
       private$score_matrix <- private$produce_matrix()
     },
-    ## set_compute_score_FUN
-    set_compute_score_FUN = function(FUN) {
-      stopifnot(class(FUN(private$grl[[1]], private$grl[[1]])) == "numeric")
-      private$compute_score <- FUN
-    },
     ## get_matrix
     get_matrix = function() {
       private$score_matrix
@@ -68,6 +63,17 @@ chip_compare <- R6::R6Class("chip_compare",
       rownames(result) <- names(query)
       colnames(result) <- names(subject)
       result
+    }
+  )
+)
+
+# This shows how it is possible to use inheritance to use and alternative
+# compute_score function
+chip_compare_dummy <- R6::R6Class("chip_compare_dummy",
+  inherit = chip_compare,
+  private = list(
+    compute_score = function(qry, sbj) {
+      0.5
     }
   )
 )

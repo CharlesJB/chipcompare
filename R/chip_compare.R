@@ -47,8 +47,12 @@ chip_compare <- R6::R6Class("chip_compare",
     #### private methods
     ## compute_score
     compute_score = function(qry, sbj) {
-      count <- length(unique(queryHits(findOverlaps(qry, sbj))))
-      count / length(qry)
+      overlaps <- findOverlaps(qry, sbj)
+      count_qry <- length(unique(queryHits(overlaps)))
+      count_sbj <- length(unique(subjectHits(overlaps)))
+      percent_qry <- count_qry / length(qry)
+      percent_sbj <- count_sbj / length(sbj)
+      c(percent_qry, percent_sbj)
     },
     ## produce_matrix
     produce_matrix = function() {
@@ -60,10 +64,17 @@ chip_compare <- R6::R6Class("chip_compare",
       }
       q_length <- length(query)
       s_length <- length(subject)
+      min_length <- min(q_length, s_length)
       result <- matrix(nrow = q_length, ncol = s_length)
       for (i in 1:q_length) {
         for (j in 1:s_length) {
-          result[i,j] <- private$compute_score(query[[i]], subject[[j]])
+          if (is.na(result[i,j])) {
+            current_result <- private$compute_score(query[[i]], subject[[j]])
+            result[i,j] <- current_result[1]
+            if (i != j & j <= q_length & i <= s_length) {
+              result[j,i] <- current_result[2]
+            }
+          }
         }
       }
       rownames(result) <- names(query)
@@ -79,7 +90,7 @@ chip_compare_dummy <- R6::R6Class("chip_compare_dummy",
   inherit = chip_compare,
   private = list(
     compute_score = function(qry, sbj) {
-      0.5
+      c(0.5, 0.5)
     }
   )
 )

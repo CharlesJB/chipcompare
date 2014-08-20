@@ -15,6 +15,8 @@ chip_compare <- R6::R6Class("chip_compare",
       private$grl[[1]] <- grl1
       private$grl[[2]] <- grl2
       private$score_matrix <- private$produce_matrix()
+      # Show heatmap
+      self$print()
     },
     ## get_matrix
     get_matrix = function() {
@@ -22,21 +24,7 @@ chip_compare <- R6::R6Class("chip_compare",
     },
     ## print
     print = function(...) {
-      message <- paste0("chip_compare Object of length: ",
-                        length(private$grl), "\n")
-      message <- paste0(message, "\n")
-      cat(message)
-      get_print_info <- function(gr_name, i) {
-        cat(paste0("[", which(names(private$grl[[i]]) == gr_name), "] ",
-                  gr_name, " (length: ", length(private$grl[[i]][[gr_name]]),
-                  ")\n"))
-      }
-      for (i in 1:length(private$grl)) {
-        cat(paste0("[[", i, "]] GRangesList of length ",
-                   length(private$grl[[i]]),"\n"))
-        invisible(lapply(names(private$grl[[i]]), get_print_info, i))
-        cat("\n")
-      }
+      heatmap.2(private$score_matrix, col = redgreen(75), trace = "none")
     }
   ),
   private = list(

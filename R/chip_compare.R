@@ -1,5 +1,4 @@
-#' A R6 class to store GRangesList and comparison matrix
-#' 
+# A R6 class to store GRangesList and comparison matrix
 chip_compare <- R6::R6Class("chip_compare",
   public = list(
     ## initialize

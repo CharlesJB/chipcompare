@@ -2,7 +2,7 @@
 chip_compare <- R6::R6Class("chip_compare",
   public = list(
     ## initialize
-    initialize = function(grl1, grl2=NULL, ...) {
+    initialize = function(grl1, grl2=NULL, heatmap=TRUE, ...) {
       # Check parameters
       stopifnot(class(grl1) == "GRangesList")
       stopifnot(length(grl1) > 0)
@@ -15,7 +15,9 @@ chip_compare <- R6::R6Class("chip_compare",
       private$grl[[2]] <- grl2
       private$score_matrix <- private$produce_matrix()
       # Show heatmap
-      self$print(...)
+      if (heatmap == TRUE) {
+        self$print(...)
+      }
     },
     ## get_matrix
     get_matrix = function() {

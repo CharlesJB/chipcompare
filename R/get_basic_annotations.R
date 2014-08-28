@@ -50,7 +50,28 @@ build_basic_annotations <- function() {
   names(mcols(TTR)) <- "id"
   names(mcols(enhancers)) <- "id"
 
-  # 3. Build the GRangesList object
+  # 3. Remove circular chromosome (chrM)
+  genes <- genes[seqnames(genes) != "chrM"]
+  idx <- which(seqlevels(genes) == "chrM")
+  seqlevels(genes) <- seqlevels(genes)[-idx]
+
+  exons <- exons[seqnames(exons) != "chrM"]
+  idx <- which(seqlevels(exons) == "chrM")
+  seqlevels(exons) <- seqlevels(exons)[-idx]
+
+  TSS <- TSS[seqnames(TSS) != "chrM"]
+  idx <- which(seqlevels(TSS) == "chrM")
+  seqlevels(TSS) <- seqlevels(TSS)[-idx]
+
+  TTR <- TTR[seqnames(TTR) != "chrM"]
+  idx <- which(seqlevels(TTR) == "chrM")
+  seqlevels(TTR) <- seqlevels(TTR)[-idx]
+
+#  enhancers <- enhancers[seqnames(enhancers) != "chrM"]
+#  idx <- which(seqlevels(enhancers) == "chrM")
+#  seqlevels(enhancers) <- seqlevels(enhancers)[-idx]
+
+  # 4. Build the GRangesList object
   basic_annotations <- GenomicRanges::GRangesList()
   basic_annotations$genes <- genes
   basic_annotations$exons <- exons
@@ -58,7 +79,7 @@ build_basic_annotations <- function() {
   basic_annotations$TTR <- TTR
   basic_annotations$enhancers <- enhancers
 
-  # 4. Save dataset
+  # 5. Save dataset
   save(basic_annotations, file = "data/basic_annotations.rda")
   invisible(basic_annotations)
 }

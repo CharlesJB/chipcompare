@@ -5,10 +5,10 @@ chip_compare <- R6::R6Class("chip_compare",
     initialize = function(grl1, grl2=NULL, heatmap=TRUE, ...) {
       # Check parameters
       stopifnot(class(grl1) == "GRangesList")
-      stopifnot(length(grl1) > 0)
+      stopifnot(length(grl1) > 1)
       if (!is.null(grl2)) {
         stopifnot(class(grl2) == "GRangesList")
-        stopifnot(length(grl2) > 0)
+        stopifnot(length(grl2) > 1)
       }
       # Initialize
       private$grl[[1]] <- grl1

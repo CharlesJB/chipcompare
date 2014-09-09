@@ -19,13 +19,18 @@ build_basic_annotations <- function() {
   txdb <- TxDb.Hsapiens.UCSC.hg19.knownGene
 
   # 1. Fetch the GRanges objects
-  genes <- GenomicFeatures::genes(txdb)
-  exons <- GenomicFeatures::exons(txdb)
+  annotations <- list()
+  annotations$exons <- GenomicFeatures::exons(txdb)
   transcripts <- GenomicFeatures::transcripts(txdb)
+  mcols(transcripts)$tx_id <- NULL
+  annotations$transcripts <- transcripts
   TSS <- GenomicRanges::promoters(txdb, downstream = 1, upstream = 0)
-  TTR <- transcripts
+  mcols(TSS)$tx_id <- NULL
+  annotations$TSS <- TSS
+  TTR <- annotations$transcripts
   end(TTR[strand(TTR) == "+"]) <- start(TTR[strand(TTR) == "+"])
   start(TTR[strand(TTR) == "-"]) <- end(TTR[strand(TTR) == "-"])
+  annotations$TTR <- TTR
 
   enhancers_url <-
     "http://fantom.gsc.riken.jp/5/datafiles/latest/extra/Enhancers/hg19_enhancers.bed.gz"
@@ -36,50 +41,23 @@ build_basic_annotations <- function() {
     "strand", "thickStart", "thickEnd", "itemRgb", "blockCount", "blockSizes",
     "blockStarts")
   enhancers$strand <- "*"
-  enhancers <- as(enhancers[,c(1:4,6)], "GRanges")
+  annotations$enhancers <- as(enhancers[,c(1:4,6)], "GRanges")
   file.remove("hg19_enhancer.bed.gz")
 
   # 2. Make sure all metadata fits (names and count must be the same
   #    if we want to group them as a single GRangesList).
-  names(mcols(genes)) <- "id"
-  mcols(genes)$id <- as.character(mcols(genes)$id)
-  names(mcols(exons)) <- "id"
-  mcols(TSS)$tx_id <- NULL
-  names(mcols(TSS)) <- "id"
-  mcols(TTR)$tx_id <- NULL
-  names(mcols(TTR)) <- "id"
-  names(mcols(enhancers)) <- "id"
+  annotations <- lapply(annotations, function(x) { names(mcols(x)) <- "id"; x })
 
-  # 3. Remove circular chromosome (chrM)
-  genes <- genes[seqnames(genes) != "chrM"]
-  idx <- which(seqlevels(genes) == "chrM")
-  seqlevels(genes) <- seqlevels(genes)[-idx]
-
-  exons <- exons[seqnames(exons) != "chrM"]
-  idx <- which(seqlevels(exons) == "chrM")
-  seqlevels(exons) <- seqlevels(exons)[-idx]
-
-  TSS <- TSS[seqnames(TSS) != "chrM"]
-  idx <- which(seqlevels(TSS) == "chrM")
-  seqlevels(TSS) <- seqlevels(TSS)[-idx]
-
-  TTR <- TTR[seqnames(TTR) != "chrM"]
-  idx <- which(seqlevels(TTR) == "chrM")
-  seqlevels(TTR) <- seqlevels(TTR)[-idx]
-
-#  enhancers <- enhancers[seqnames(enhancers) != "chrM"]
-#  idx <- which(seqlevels(enhancers) == "chrM")
-#  seqlevels(enhancers) <- seqlevels(enhancers)[-idx]
-
+  # 3. Remove circular chromosome (chrM) and clean seqlevels
+  annotations <- lapply(annotations, function(x) {
+                   x <- x[seqnames(x) != "chrM"]
+                   seqlevels(x) <- unique(as.character(seqnames(x)))
+                   x
+                 })
   # 4. Build the GRangesList object
-  basic_annotations <- GenomicRanges::GRangesList()
-  basic_annotations$genes <- genes
-  basic_annotations$exons <- exons
-  basic_annotations$TSS <- TSS
-  basic_annotations$TTR <- TTR
-  basic_annotations$enhancers <- enhancers
+  basic_annotations <- GenomicRanges::GRangesList(annotations)
 
   # 5. Save dataset
   save(basic_annotations, file = "data/basic_annotations.rda")
-  invisible(basic_annotations)
+  invisible(annotations)
 }

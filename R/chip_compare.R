@@ -54,7 +54,7 @@ chip_compare <- R6::R6Class("chip_compare",
       # If we convert subject to list GIntervalTree, the code is ~10X faster
       subject_names <- names(subject)
       subject <- lapply(1:length(subject),
-                        function(x) GIntervalTree(subject[[x]]))
+                        function(x) GenomicRanges:::GIntervalTree(subject[[x]]))
       names(subject) <- subject_names
       # We start the calculations
       q_length <- length(query)

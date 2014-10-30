@@ -9,7 +9,7 @@ Depends: R (>= 3.1.0)
 License: Artistic-2.0
 LazyData: true
 BiocViews: ChIP-Seq, MultipleComparison, Genetics
-Imports: R6 (>= 1.0.1.9001), GenomicRanges, GenomicFeatures, gplots
+Imports: R6 (>= 1.0.1.9001), GenomicRanges, GenomicFeatures, gplots, tools
 Suggests: knitr, testthat
 Enhances: TxDb.Hsapiens.UCSC.hg19.knownGene
 VignetteBuilder: knitr

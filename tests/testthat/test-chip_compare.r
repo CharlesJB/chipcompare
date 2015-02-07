@@ -22,51 +22,51 @@ for (i in 1:length(grl)) {
 
 ### START TESTS
 ## initialize
-test_that("chip_compare::initialize - Check param - Valid", {
-  expect_that({chip_compare$new(grl, heatmap=FALSE); TRUE}, is_true())
-  expect_that({chip_compare$new(grl, grl[1:4], heatmap=FALSE); TRUE}, is_true())
+test_that("chipcompare::initialize - Check param - Valid", {
+  expect_that({chipcompare$new(grl, heatmap=FALSE); TRUE}, is_true())
+  expect_that({chipcompare$new(grl, grl[1:4], heatmap=FALSE); TRUE}, is_true())
 })
 
-test_that("chip_compare::initialize - Check param - Invalid grl1", {
-  expect_that(chip_compare$new(), throws_error())
-  expect_that(chip_compare$new(1), throws_error())
-  expect_that(chip_compare$new("a"), throws_error())
-  expect_that(chip_compare$new(list(a=1, b=2)), throws_error())
+test_that("chipcompare::initialize - Check param - Invalid grl1", {
+  expect_that(chipcompare$new(), throws_error())
+  expect_that(chipcompare$new(1), throws_error())
+  expect_that(chipcompare$new("a"), throws_error())
+  expect_that(chipcompare$new(list(a=1, b=2)), throws_error())
 })
 
-test_that("chip_compare::initialize - Check param - Invalid grl2", {
-  expect_that(chip_compare$new(grl, 1), throws_error())
-  expect_that(chip_compare$new(grl, "a"), throws_error())
-  expect_that(chip_compare$new(grl, list(a=1, b=2)), throws_error())
+test_that("chipcompare::initialize - Check param - Invalid grl2", {
+  expect_that(chipcompare$new(grl, 1), throws_error())
+  expect_that(chipcompare$new(grl, "a"), throws_error())
+  expect_that(chipcompare$new(grl, list(a=1, b=2)), throws_error())
 })
 
-test_that("chip_compare::initialize - Check param - empty grl", {
-  expect_that(chip_compare$new(empty_grl), throws_error())
-  expect_that(chip_compare$new(grl, empty_grl), throws_error())
-  expect_that(chip_compare$new(empty_grl, grl[1]), throws_error())
+test_that("chipcompare::initialize - Check param - empty grl", {
+  expect_that(chipcompare$new(empty_grl), throws_error())
+  expect_that(chipcompare$new(grl, empty_grl), throws_error())
+  expect_that(chipcompare$new(empty_grl, grl[1]), throws_error())
 })
 
-test_that("chip_compare::initialize - Check param - Not enough elements", {
-  expect_that(chip_compare$new(grl[1]), throws_error())
+test_that("chipcompare::initialize - Check param - Not enough elements", {
+  expect_that(chipcompare$new(grl[1]), throws_error())
 })
 
 ## get_matrix
-test_that("chip_compare::get_matrix - symetric matrix", {
-  expect_that(chip_compare$new(grl[1:3], heatmap=FALSE)$get_matrix(),
+test_that("chipcompare::get_matrix - symetric matrix", {
+  expect_that(chipcompare$new(grl[1:3], heatmap=FALSE)$get_matrix(),
               is_equivalent_to(matrix(c(1,1,0,1,1,0,0,0,1), nrow=3)))
 })
 
-test_that("chip_compare::get_matrix - asymetric matrix", {
-  expect_that(chip_compare$new(grl[1:3], grl[4:5], heatmap=FALSE)$get_matrix(),
+test_that("chipcompare::get_matrix - asymetric matrix", {
+  expect_that(chipcompare$new(grl[1:3], grl[4:5], heatmap=FALSE)$get_matrix(),
               is_equivalent_to(matrix(c(0,0,1,0,0,1), nrow=3)))
 })
 
-test_that("chip_compare::get_matrix - no overlap matrix", {
-  expect_that(chip_compare$new(grl[1:3], grl[6:7], heatmap=FALSE)$get_matrix(),
+test_that("chipcompare::get_matrix - no overlap matrix", {
+  expect_that(chipcompare$new(grl[1:3], grl[6:7], heatmap=FALSE)$get_matrix(),
               is_equivalent_to(matrix(0, ncol=2, nrow=3)))
 })
 
-test_that("chip_compare::get_matrix - partial overlap matrix", {
-  expect_that(chip_compare$new(grl[5:7], grl[1:3], heatmap=FALSE)$get_matrix(),
+test_that("chipcompare::get_matrix - partial overlap matrix", {
+  expect_that(chipcompare$new(grl[5:7], grl[1:3], heatmap=FALSE)$get_matrix(),
               is_equivalent_to(matrix(c(0,0,1,0,0,0,0.5,0.0,0.0), nrow=3)))
 })

@@ -110,6 +110,53 @@ chipcompare <- R6::R6Class("chipcompare",
     ## print
     print = function(...) {
       gplots::heatmap.2(private$score_matrix, col = redgreen(75), trace = "none", ...)
+    },
+    pvalue = function(baseline, sample_count = 1000) {
+      # 0. Check params
+      stopifnot(class(baseline) == "GRanges")
+      stopifnot(length(baseline) > 1)
+      stopifnot(is.numeric(sample_count))
+      stopifnot(sample_count > 0)
+
+      # 1. Pre-calculate the overlaps
+      add_overlaps <- function(baseline, subject_name) {
+        # Make sure the seqlevels fit
+        subject <- bai[[subject_name]]
+        levels <- as.character(GenomeInfoDb::seqlevels(subject))
+        levels <- c(levels, as.character(GenomeInfoDb::seqlevels(baseline)))
+        levels <- unique(levels)
+        GenomeInfoDb::seqlevels(baseline) <- levels
+
+        # Calculate the overlaps
+        overlaps <- GenomicRanges::overlapsAny(baseline, subject)
+        GenomicRanges::elementMetadata(baseline)[subject_name] <- overlaps
+        baseline
+      }
+      for (name in names(bai)) {
+        baseline <- add_overlaps(baseline, name)
+      }
+
+      # 2. Produce the matrix
+      query <- private$grl[[1]]
+      if (length(private$grl) == 2) {
+        subject <- private$grl[[2]]
+      } else {
+        subject <- private$grl[[1]]
+      }
+      launch_pval_calculations <- function(i, sbj_name) {
+        j <- which(names(subject) == sbj_name)
+        obs <- self$get_matrix()[i,j]
+        overlaps <- GenomicRanges::elementMetadata(baseline)[[sbj_name]]
+        sample_size <- length(query[[i]])
+        chipcompare:::calculate_pvalue(obs = obs, overlaps = overlaps,
+                                       sample_size = sample_size,
+                                       sample_count = sample_count)
+      }
+      do.call("rbind", lapply(seq_along(query), function(i) {
+        unlist(mclapply(names(subject), function(sbj_name) {
+          launch_pval_calculations(i, sbj_name)
+        }, mc.cores = private$cores)
+      )}))
     }
   ),
   private = list(

@@ -13,6 +13,7 @@
 #'               regions in \code{grl1} will be compared against themselves.
 #'               Default: \code{NULL}.}
 #'   \item{heatmap:}{Print heatmap. Default: \code{TRUE}}
+#'   \item{cores:}{Number of cores for parallel processing. Default: 1}
 #'   \item{...:}{Extra options to pass to \code{heatmap.2} function.}
 #' }
 #'
@@ -62,12 +63,13 @@
 #'
 #' @importFrom R6 R6Class
 #' @importFrom GenomicRanges findOverlaps
+#' @importFrom parallel mclapply
 #' @export
 #' @format An overlap calculator
 chipcompare <- R6::R6Class("chipcompare",
   public = list(
     ## initialize
-    initialize = function(grl1, grl2=NULL, heatmap=TRUE, ...) {
+    initialize = function(grl1, grl2=NULL, heatmap=TRUE, cores = 1, ...) {
       # Check parameters
       stopifnot(class(grl1) == "GRangesList")
       stopifnot(length(grl1) > 1)
@@ -75,10 +77,27 @@ chipcompare <- R6::R6Class("chipcompare",
         stopifnot(class(grl2) == "GRangesList")
         stopifnot(length(grl2) > 1)
       }
+      stopifnot(is.numeric(cores))
+      stopifnot(cores > 0)
+      stopifnot(as.integer(cores) == cores)
       # Initialize
+      private$cores <- cores
       private$grl[[1]] <- grl1
       private$grl[[2]] <- grl2
-      private$score_matrix <- private$produce_matrix()
+      query <- private$grl[[1]]
+      if (length(private$grl) == 2) {
+        subject <- private$grl[[2]]
+      } else {
+        subject <- private$grl[[1]]
+      }
+      # If we convert subject to list GIntervalTree, the code is ~10X faster
+      subject_names <- names(subject)
+      subject <- lapply(1:length(subject),
+                        function(x) GenomicRanges::GIntervalTree(subject[[x]]))
+      names(subject) <- subject_names
+      # Calculate scores
+      private$score_matrix <- private$produce_matrix(query, subject,
+                                chipcompare:::percent_overlap)
       # Show heatmap
       if (heatmap == TRUE) {
         self$print(...)
@@ -90,56 +109,23 @@ chipcompare <- R6::R6Class("chipcompare",
     },
     ## print
     print = function(...) {
-      heatmap.2(private$score_matrix, col = redgreen(75), trace = "none", ...)
+      gplots::heatmap.2(private$score_matrix, col = redgreen(75), trace = "none", ...)
     }
   ),
   private = list(
     #### private members
     grl = list(),
     score_matrix = matrix(),
+    cores = NULL,
 
     #### private methods
-    ## compute_score
-    compute_score = function(qry, sbj) {
-      overlaps <- findOverlaps(qry, sbj)
-      count_qry <- length(unique(queryHits(overlaps)))
-      count_sbj <- length(unique(subjectHits(overlaps)))
-      percent_qry <- count_qry / length(qry)
-      percent_sbj <- count_sbj / length(sbj)
-      c(percent_qry, percent_sbj)
-    },
     ## produce_matrix
-    produce_matrix = function() {
-      query <- private$grl[[1]]
-      if (length(private$grl) == 2) {
-        subject <- private$grl[[2]]
-      } else {
-        subject <- private$grl[[1]]
-      }
-      # If we convert subject to list GIntervalTree, the code is ~10X faster
-      subject_names <- names(subject)
-      subject <- lapply(1:length(subject),
-                        function(x) GenomicRanges:::GIntervalTree(subject[[x]]))
-      names(subject) <- subject_names
-      # We start the calculations
-      q_length <- length(query)
-      s_length <- length(subject)
-      min_length <- min(q_length, s_length)
-      result <- matrix(nrow = q_length, ncol = s_length)
-      for (i in 1:q_length) {
-        for (j in 1:s_length) {
-          if (is.na(result[i,j])) {
-            current_result <- private$compute_score(query[[i]], subject[[j]])
-            result[i,j] <- current_result[1]
-            if (i != j & j <= q_length & i <= s_length) {
-              result[j,i] <- current_result[2]
-            }
-          }
-        }
-      }
-      rownames(result) <- names(query)
-      colnames(result) <- names(subject)
-      result
+    produce_matrix = function(query, subject, FUN, ...) {
+      do.call("rbind", lapply(query, function(qry) {
+        unlist(mclapply(subject, function(sbj) {
+          FUN(qry, sbj, ...)
+        }, mc.cores = private$cores)
+      )}))
     }
   )
 )

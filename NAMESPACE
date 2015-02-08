@@ -3,3 +3,4 @@
 export(chipcompare)
 importFrom(GenomicRanges,findOverlaps)
 importFrom(R6,R6Class)
+importFrom(parallel,mclapply)

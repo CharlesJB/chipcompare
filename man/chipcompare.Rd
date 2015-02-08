@@ -31,6 +31,7 @@ regions, this object will calculate the percentage of overlapping regions.
               regions in \code{grl1} will be compared against themselves.
               Default: \code{NULL}.}
   \item{heatmap:}{Print heatmap. Default: \code{TRUE}}
+  \item{cores:}{Number of cores for parallel processing. Default: 1}
   \item{...:}{Extra options to pass to \code{heatmap.2} function.}
 }
 }
@@ -54,8 +55,8 @@ regions, this object will calculate the percentage of overlapping regions.
 # Prepare the GRangesList object
  gr1 <- GRanges("chr1", IRanges(c(1,100),c(10,110)))
  gr2 <- GRanges("chr1", IRanges(c(2,200),c(8,210)))
- gr3 <- GRanges(c("chr1", "chr2", IRanges(c(1,100),c(10,110)))
- gr4 <- GRanges("chr3", IRanges(1:1000)
+ gr3 <- GRanges(c("chr1", "chr2"), IRanges(c(1,100),c(10,110)))
+ gr4 <- GRanges("chr3", IRanges(1,1000))
  grl <- GRangesList(gr1, gr2, gr3, gr4)
 
  # Create a chipcompare object

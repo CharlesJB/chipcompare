@@ -97,7 +97,7 @@ chipcompare <- R6::R6Class("chipcompare",
       names(subject) <- subject_names
       # Calculate scores
       private$score_matrix <- private$produce_matrix(query, subject,
-                                chipcompare:::percent_overlap)
+                                percent_overlap)
       # Show heatmap
       if (heatmap == TRUE) {
         self$print(...)

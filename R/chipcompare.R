@@ -14,6 +14,8 @@
 #'               Default: \code{NULL}.}
 #'   \item{heatmap:}{Print heatmap. Default: \code{TRUE}}
 #'   \item{cores:}{Number of cores for parallel processing. Default: 1}
+#'   \item{FUN:}{The function to compute the scores. Must take 2 \code{GRanges}
+#'               as input and return a numeric as output.
 #'   \item{...:}{Extra options to pass to \code{heatmap.2} function.}
 #' }
 #'
@@ -69,7 +71,8 @@
 chipcompare <- R6::R6Class("chipcompare",
   public = list(
     ## initialize
-    initialize = function(grl1, grl2=NULL, heatmap=TRUE, cores = 1, ...) {
+    initialize = function(grl1, grl2=NULL, heatmap=TRUE, cores = 1,
+			  FUN = percent_overlap, ...) {
       # Check parameters
       stopifnot(class(grl1) == "GRangesList")
       stopifnot(length(grl1) > 1)
@@ -80,6 +83,7 @@ chipcompare <- R6::R6Class("chipcompare",
       stopifnot(is.numeric(cores))
       stopifnot(cores > 0)
       stopifnot(as.integer(cores) == cores)
+      stopifnot(is.function(FUN))
       # Initialize
       private$cores <- cores
       private$grl[[1]] <- grl1
@@ -97,7 +101,7 @@ chipcompare <- R6::R6Class("chipcompare",
       names(subject) <- subject_names
       # Calculate scores
       private$score_matrix <- private$produce_matrix(query, subject,
-                                percent_overlap)
+                                FUN)
       # Show heatmap
       if (heatmap == TRUE) {
         self$print(...)

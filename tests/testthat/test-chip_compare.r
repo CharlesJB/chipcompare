@@ -23,7 +23,10 @@ for (i in 1:length(grl)) {
 ### START TESTS
 ## initialize
 test_that("chipcompare::initialize - Check param - Valid", {
-  expect_that({chipcompare$new(grl, heatmap=FALSE, cores = 2); TRUE}, is_true())
+  dummy_fct <- function(gr1, gr2) {
+    length(c(gr1, gr2))
+  }
+  expect_that({chipcompare$new(grl, heatmap=FALSE, cores = 2, FUN = dummy_fct); TRUE}, is_true())
   expect_that({chipcompare$new(grl, grl[1:4], heatmap=FALSE); TRUE}, is_true())
 })
 
@@ -60,6 +63,10 @@ test_that("chipcompare::initialize - check param cores - Negative value", {
 
 test_that("chipcompare::initialize - Check param cores - Zero", {
   expect_that(chipcompare$new(grl, cores = 0), throws_error())
+})
+
+test_that("chipcompare::initialize - Check param FUN - Not a function", {
+  expect_that(chipcompare$new(grl, FUN = "a"), throws_error())
 })
 
 ## get_matrix

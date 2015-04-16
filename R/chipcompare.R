@@ -16,7 +16,7 @@
 #'   \item{cores:}{Number of cores for parallel processing. Default: 1}
 #'   \item{FUN:}{The function to compute the scores. Must take 2 \code{GRanges}
 #'               as input and return a numeric as output.
-#'   \item{...:}{Extra options to pass to \code{heatmap.2} function.}
+#'   \item{...:}{Extra options to pass to \code{FUN}.}
 #' }
 #'
 #' @return
@@ -101,10 +101,10 @@ chipcompare <- R6::R6Class("chipcompare",
       names(subject) <- subject_names
       # Calculate scores
       private$score_matrix <- private$produce_matrix(query, subject,
-                                FUN)
+                                FUN, ...)
       # Show heatmap
       if (heatmap == TRUE) {
-        self$print(...)
+        self$print()
       }
     },
     ## get_matrix
@@ -178,17 +178,6 @@ chipcompare <- R6::R6Class("chipcompare",
           FUN(qry, sbj, ...)
         }, mc.cores = private$cores)
       )}))
-    }
-  )
-)
-
-# This shows how it is possible to use inheritance to use and alternative
-# compute_score function
-chipcompare_dummy <- R6::R6Class("chipcompare_dummy",
-  inherit = chipcompare,
-  private = list(
-    compute_score = function(qry, sbj) {
-      c(0.5, 0.5)
     }
   )
 )

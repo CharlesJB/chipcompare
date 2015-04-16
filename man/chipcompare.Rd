@@ -32,7 +32,9 @@ regions, this object will calculate the percentage of overlapping regions.
               Default: \code{NULL}.}
   \item{heatmap:}{Print heatmap. Default: \code{TRUE}}
   \item{cores:}{Number of cores for parallel processing. Default: 1}
-  \item{...:}{Extra options to pass to \code{heatmap.2} function.}
+  \item{FUN:}{The function to compute the scores. Must take 2 \code{GRanges}
+              as input and return a numeric as output.}
+  \item{...:}{Extra options to pass to \code{FUN}.}
 }
 }
 

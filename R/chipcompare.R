@@ -115,7 +115,7 @@ chipcompare <- R6::R6Class("chipcompare",
     print = function(...) {
       gplots::heatmap.2(private$score_matrix, col = redgreen(75), trace = "none", ...)
     },
-    pvalue = function(baseline, sample_count = 1000) {
+    pvalue = function(baseline, sample_count = 1000, max_sample_count = 10000) {
       # 0. Check params
       stopifnot(class(baseline) == "GRanges")
       stopifnot(length(baseline) > 1)
@@ -155,7 +155,9 @@ chipcompare <- R6::R6Class("chipcompare",
         sample_size <- length(query[[i]])
         chipcompare:::calculate_pvalue(obs = obs, overlaps = overlaps,
                                        sample_size = sample_size,
-                                       sample_count = sample_count)
+                                       sample_count = sample_count,
+                                       cores = private$cores,
+                                       max_sample_count = max_sample_count)
       }
       do.call("rbind", lapply(seq_along(query), function(i) {
         unlist(lapply(names(subject), function(sbj_name) {

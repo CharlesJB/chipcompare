@@ -158,9 +158,9 @@ chipcompare <- R6::R6Class("chipcompare",
                                        sample_count = sample_count)
       }
       do.call("rbind", lapply(seq_along(query), function(i) {
-        unlist(mclapply(names(subject), function(sbj_name) {
+        unlist(lapply(names(subject), function(sbj_name) {
           launch_pval_calculations(i, sbj_name)
-        }, mc.cores = private$cores)
+        })
       )}))
     }
   ),

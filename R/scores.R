@@ -44,7 +44,7 @@ calculate_pvalue <- function(obs, overlaps, sample_size, sample_count, cores = 1
   }
   splitted_count <- split(1:sample_count,
                             ceiling(seq_along(1:sample_count)/max_sample_count))
-  bootstrap <- do.call("c", mclapply(splitted_count, bs))
+  bootstrap <- do.call("c", mclapply(splitted_count, bs, mc.cores = cores))
   sum(bootstrap > obs)/length(bootstrap)
 }
 

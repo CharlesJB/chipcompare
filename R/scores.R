@@ -41,11 +41,22 @@ calculate_pvalue <- function(obs, overlaps, sample_size, sample_count, cores = 1
   bs <- function(size) {
     i <- sample(1:length(overlaps), sample_size * size, replace = TRUE)
     colSums(matrix(overlaps[i], nrow = sample_size)) / size
+#    to_return <- colSums(matrix(overlaps[i], nrow = sample_size)) / size
+#    rm(i)
+#    to_return
   }
   splitted_count <- split(1:sample_count,
                             ceiling(seq_along(1:sample_count)/max_sample_count))
-  bootstrap <- do.call("c", mclapply(splitted_count, bs, mc.cores = cores))
-  sum(bootstrap > obs)/length(bootstrap)
+  res <- 0
+  for (count in splitted_count) {
+    bootstrap <- do.call("c", mclapply(count, bs, mc.cores = cores))
+#    res <- res + sum(bootstrap > obs)/length(bootstrap)
+#    rm(bootstrap)
+    res <- res + sum(bootstrap > obs)/length(bootstrap)
+  }
+#  bootstrap <- do.call("c", mclapply(splitted_count, bs, mc.cores = cores))
+#  res <- sum(bootstrap > obs)/length(bootstrap)
+  res
 }
 
 #' Calculate the p-value associated with a given overlap percentage.

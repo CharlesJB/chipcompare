@@ -94,10 +94,10 @@ chipcompare <- R6::R6Class("chipcompare",
       } else {
         subject <- private$grl[[1]]
       }
-      # If we convert subject to list GIntervalTree, the code is ~10X faster
+      # If we convert subject to list GNCList, the code is ~10X faster
       subject_names <- names(subject)
       subject <- lapply(1:length(subject),
-                        function(x) GenomicRanges::GIntervalTree(subject[[x]]))
+                        function(x) GenomicRanges::GNCList(subject[[x]]))
       names(subject) <- subject_names
       # Calculate scores
       private$score_matrix <- private$produce_matrix(query, subject,

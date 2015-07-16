@@ -1,6 +1,6 @@
 Package: chipcompare
 Title: Compare multiple ChIP-Seq experiments.
-Version: 0.2.3
+Version: 0.2.4
 Authors@R: person("Charles", "Joly Beauparlant", role=c("aut", "cre"),
     email="Charles.Joly-Beauparlant@crchul.ulaval.ca")
 Description: By default, chipcompare will calculate the overlap between

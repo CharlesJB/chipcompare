@@ -7,7 +7,7 @@
 #' @section Constructor:
 #' \describe{
 #'   \item{}{\code{cc <- chipcompare$new(grl1, grl2 = NULL, heatmap=TRUE,
-#'                                       ...)}}
+#'                                       index = TRUE, ...)}}
 #'   \item{grl1:}{A \code{GRangesList} object.}
 #'   \item{grl2:}{A \code{GRangesList} object. If value is \code{NULL}, all the
 #'               regions in \code{grl1} will be compared against themselves.
@@ -16,6 +16,8 @@
 #'   \item{cores:}{Number of cores for parallel processing. Default: 1}
 #'   \item{FUN:}{The function to compute the scores. Must take 2 \code{GRanges}
 #'               as input and return a numeric as output.}
+#'   \item{index:}{Index \code{GRanges} with the \code{GNCList} function?
+#'                 Default: TRUE.}
 #'   \item{...:}{Extra options to pass to \code{FUN}.}
 #' }
 #'
@@ -72,7 +74,7 @@ chipcompare <- R6::R6Class("chipcompare",
   public = list(
     ## initialize
     initialize = function(grl1, grl2=NULL, heatmap=TRUE, cores = 1,
-			  FUN = percent_overlap, ...) {
+			  FUN = percent_overlap, index = TRUE, ...) {
       # Check parameters
       stopifnot(class(grl1) == "GRangesList")
       stopifnot(length(grl1) > 1)
@@ -84,6 +86,7 @@ chipcompare <- R6::R6Class("chipcompare",
       stopifnot(cores > 0)
       stopifnot(as.integer(cores) == cores)
       stopifnot(is.function(FUN))
+      stopifnot(is.logical(index))
       # Initialize
       private$cores <- cores
       private$grl[[1]] <- grl1
@@ -95,10 +98,12 @@ chipcompare <- R6::R6Class("chipcompare",
         subject <- private$grl[[1]]
       }
       # If we convert subject to list GNCList, the code is ~10X faster
-      subject_names <- names(subject)
-      subject <- lapply(1:length(subject),
-                        function(x) GenomicRanges::GNCList(subject[[x]]))
-      names(subject) <- subject_names
+      if (index == TRUE) {
+        subject_names <- names(subject)
+        subject <- lapply(1:length(subject),
+                          function(x) GenomicRanges::GNCList(subject[[x]]))
+        names(subject) <- subject_names
+      }
       # Calculate scores
       private$score_matrix <- private$produce_matrix(query, subject,
                                 FUN, ...)
